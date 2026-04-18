@@ -159,7 +159,73 @@ const HTML_PAGE = `
             gap: 20px;
             margin-bottom: 32px;
         }
-        
+
+        .control-value {
+            float: right;
+            font-weight: normal;
+            color: var(--primary-color);
+        }
+
+        .range-control {
+            margin-top: 12px;
+        }
+
+        .range-presets {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--surface-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .preset-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .form-range {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border-color);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .form-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
         .btn-primary {
             width: 100%;
             background: var(--primary-color);
@@ -1052,51 +1118,183 @@ const HTML_PAGE = `
                         <div class="form-group">
                             <label class="form-label" for="voice">语音选择</label>
                             <select class="form-select" id="voice">
-                                <option value="zh-CN-XiaoxiaoNeural">晓晓 (女声·温柔)</option>
-                                <option value="zh-CN-YunxiNeural">云希 (男声·清朗)</option>
-                                <option value="zh-CN-YunyangNeural">云扬 (男声·阳光)</option>
-                                <option value="zh-CN-XiaoyiNeural">晓伊 (女声·甜美)</option>
-                                <option value="zh-CN-YunjianNeural">云健 (男声·稳重)</option>
-                                <option value="zh-CN-XiaochenNeural">晓辰 (女声·知性)</option>
-                                <option value="zh-CN-XiaohanNeural">晓涵 (女声·优雅)</option>
-                                <option value="zh-CN-XiaomengNeural">晓梦 (女声·梦幻)</option>
-                                <option value="zh-CN-XiaomoNeural">晓墨 (女声·文艺)</option>
-                                <option value="zh-CN-XiaoqiuNeural">晓秋 (女声·成熟)</option>
-                                <option value="zh-CN-XiaoruiNeural">晓睿 (女声·智慧)</option>
-                                <option value="zh-CN-XiaoshuangNeural">晓双 (女声·活泼)</option>
-                                <option value="zh-CN-XiaoxuanNeural">晓萱 (女声·清新)</option>
-                                <option value="zh-CN-XiaoyanNeural">晓颜 (女声·柔美)</option>
-                                <option value="zh-CN-XiaoyouNeural">晓悠 (女声·悠扬)</option>
-                                <option value="zh-CN-XiaozhenNeural">晓甄 (女声·端庄)</option>
-                                <option value="zh-CN-YunfengNeural">云枫 (男声·磁性)</option>
-                                <option value="zh-CN-YunhaoNeural">云皓 (男声·豪迈)</option>
-                                <option value="zh-CN-YunxiaNeural">云夏 (男声·热情)</option>
-                                <option value="zh-CN-YunyeNeural">云野 (男声·野性)</option>
-                                <option value="zh-CN-YunzeNeural">云泽 (男声·深沉)</option>
+                                <optgroup label="Chinese">
+                                    <option value="zh-CN-XiaoxiaoNeural">晓晓 Xiaoxiao (女声·温柔)</option>
+                                    <option value="zh-CN-YunxiNeural">云希 Yunxi (男声·清朗)</option>
+                                    <option value="zh-CN-YunyangNeural">云扬 Yunyang (男声·阳光)</option>
+                                    <option value="zh-CN-XiaoyiNeural">晓伊 Xiaoyi (女声·甜美)</option>
+                                    <option value="zh-CN-YunjianNeural">云健 Yunjian (男声·稳重)</option>
+                                    <option value="zh-CN-XiaochenNeural">晓辰 Xiaochen (女声·知性)</option>
+                                    <option value="zh-CN-XiaohanNeural">晓涵 Xiaohan (女声·优雅)</option>
+                                    <option value="zh-CN-XiaomengNeural">晓梦 Xiaomeng (女声·梦幻)</option>
+                                    <option value="zh-CN-XiaomoNeural">晓墨 Xiaomo (女声·文艺)</option>
+                                    <option value="zh-CN-XiaoqiuNeural">晓秋 Xiaoqiu (女声·成熟)</option>
+                                    <option value="zh-CN-XiaoruiNeural">晓睿 Xiaorui (女声·智慧)</option>
+                                    <option value="zh-CN-XiaoshuangNeural">晓双 Xiaoshuang (女声·活泼)</option>
+                                    <option value="zh-CN-XiaoxuanNeural">晓萱 Xiaoxuan (女声·清新)</option>
+                                    <option value="zh-CN-XiaoyanNeural">晓颜 Xiaoyan (女声·柔美)</option>
+                                    <option value="zh-CN-XiaoyouNeural">晓悠 Xiaoyou (女声·悠扬)</option>
+                                    <option value="zh-CN-XiaozhenNeural">晓甄 Xiaozhen (女声·端庄)</option>
+                                    <option value="zh-CN-YunfengNeural">云枫 Yunfeng (男声·磁性)</option>
+                                    <option value="zh-CN-YunhaoNeural">云皓 Yunhao (男声·豪迈)</option>
+                                    <option value="zh-CN-YunxiaNeural">云夏 Yunxia (男声·热情)</option>
+                                    <option value="zh-CN-YunyeNeural">云野 Yunye (男声·野性)</option>
+                                    <option value="zh-CN-YunzeNeural">云泽 Yunze (男声·深沉)</option>
+                                </optgroup>
+                                <optgroup label="English">
+                                    <option value="en-US-JennyNeural">Jenny (Female, US)</option>
+                                    <option value="en-US-GuyNeural">Guy (Male, US)</option>
+                                    <option value="en-US-AriaNeural">Aria (Female, US)</option>
+                                    <option value="en-US-DavisNeural">Davis (Male, US)</option>
+                                    <option value="en-US-AmberNeural">Amber (Female, US)</option>
+                                    <option value="en-US-AnaNeural">Ana (Female, Child, US)</option>
+                                    <option value="en-US-AndrewNeural">Andrew (Male, US)</option>
+                                    <option value="en-US-AshleyNeural">Ashley (Female, US)</option>
+                                    <option value="en-US-BrandonNeural">Brandon (Male, US)</option>
+                                    <option value="en-US-ChristopherNeural">Christopher (Male, US)</option>
+                                    <option value="en-US-CoraNeural">Cora (Female, US)</option>
+                                    <option value="en-US-ElizabethNeural">Elizabeth (Female, US)</option>
+                                    <option value="en-US-EricNeural">Eric (Male, US)</option>
+                                    <option value="en-US-JacobNeural">Jacob (Male, US)</option>
+                                    <option value="en-US-JaneNeural">Jane (Female, US)</option>
+                                    <option value="en-US-JasonNeural">Jason (Male, US)</option>
+                                    <option value="en-US-MichelleNeural">Michelle (Female, US)</option>
+                                    <option value="en-US-MonicaNeural">Monica (Female, US)</option>
+                                    <option value="en-US-NancyNeural">Nancy (Female, US)</option>
+                                    <option value="en-US-RogerNeural">Roger (Male, US)</option>
+                                    <option value="en-US-SaraNeural">Sara (Female, US)</option>
+                                    <option value="en-US-SteffanNeural">Steffan (Male, US)</option>
+                                    <option value="en-US-TonyNeural">Tony (Male, US)</option>
+                                    <option value="en-GB-SoniaNeural">Sonia (Female, UK)</option>
+                                    <option value="en-GB-RyanNeural">Ryan (Male, UK)</option>
+                                    <option value="en-GB-LibbyNeural">Libby (Female, UK)</option>
+                                    <option value="en-GB-MaisieNeural">Maisie (Female, Child, UK)</option>
+                                    <option value="en-AU-NatashaNeural">Natasha (Female, AU)</option>
+                                    <option value="en-AU-WilliamNeural">William (Male, AU)</option>
+                                </optgroup>
+                                <optgroup label="Japanese">
+                                    <option value="ja-JP-NanamiNeural">Nanami 七海 (女性)</option>
+                                    <option value="ja-JP-KeitaNeural">Keita 圭太 (男性)</option>
+                                    <option value="ja-JP-AoiNeural">Aoi 葵 (女性)</option>
+                                    <option value="ja-JP-DaichiNeural">Daichi 大地 (男性)</option>
+                                    <option value="ja-JP-MayuNeural">Mayu 真由 (女性)</option>
+                                    <option value="ja-JP-NaokiNeural">Naoki 直樹 (男性)</option>
+                                    <option value="ja-JP-ShioriNeural">Shiori 栞 (女性)</option>
+                                </optgroup>
+                                <optgroup label="Korean">
+                                    <option value="ko-KR-SunHiNeural">SunHi 선희 (여성)</option>
+                                    <option value="ko-KR-InJoonNeural">InJoon 인준 (남성)</option>
+                                    <option value="ko-KR-BongJinNeural">BongJin 봉진 (남성)</option>
+                                    <option value="ko-KR-GookMinNeural">GookMin 국민 (남성)</option>
+                                    <option value="ko-KR-JiMinNeural">JiMin 지민 (여성)</option>
+                                    <option value="ko-KR-SeoHyeonNeural">SeoHyeon 서현 (여성)</option>
+                                    <option value="ko-KR-SoonBokNeural">SoonBok 순복 (여성)</option>
+                                    <option value="ko-KR-YuJinNeural">YuJin 유진 (여성)</option>
+                                </optgroup>
+                                <optgroup label="French">
+                                    <option value="fr-FR-DeniseNeural">Denise (Femme)</option>
+                                    <option value="fr-FR-HenriNeural">Henri (Homme)</option>
+                                    <option value="fr-FR-EloiseNeural">Eloise (Femme)</option>
+                                    <option value="fr-FR-AlainNeural">Alain (Homme)</option>
+                                    <option value="fr-FR-BrigitteNeural">Brigitte (Femme)</option>
+                                    <option value="fr-FR-CelesteNeural">Celeste (Femme)</option>
+                                    <option value="fr-FR-ClaudeNeural">Claude (Homme)</option>
+                                    <option value="fr-FR-CoraliNeural">Corali (Femme)</option>
+                                    <option value="fr-FR-JacquelineNeural">Jacqueline (Femme)</option>
+                                    <option value="fr-FR-JeromeNeural">Jerome (Homme)</option>
+                                    <option value="fr-FR-JosephineNeural">Josephine (Femme)</option>
+                                    <option value="fr-FR-MauriceNeural">Maurice (Homme)</option>
+                                    <option value="fr-FR-YvesNeural">Yves (Homme)</option>
+                                    <option value="fr-FR-YvetteNeural">Yvette (Femme)</option>
+                                </optgroup>
+                                <optgroup label="German">
+                                    <option value="de-DE-KatjaNeural">Katja (Frau)</option>
+                                    <option value="de-DE-ConradNeural">Conrad (Mann)</option>
+                                    <option value="de-DE-AmalaNeural">Amala (Frau)</option>
+                                    <option value="de-DE-BerndNeural">Bernd (Mann)</option>
+                                    <option value="de-DE-ChristophNeural">Christoph (Mann)</option>
+                                    <option value="de-DE-ElkeNeural">Elke (Frau)</option>
+                                    <option value="de-DE-GiselaNeural">Gisela (Frau)</option>
+                                    <option value="de-DE-KasperNeural">Kasper (Mann)</option>
+                                    <option value="de-DE-KillianNeural">Killian (Mann)</option>
+                                    <option value="de-DE-KlarissaNeural">Klarissa (Frau)</option>
+                                    <option value="de-DE-KlausNeural">Klaus (Mann)</option>
+                                    <option value="de-DE-LouisaNeural">Louisa (Frau)</option>
+                                    <option value="de-DE-MajaNeural">Maja (Frau)</option>
+                                    <option value="de-DE-RalfNeural">Ralf (Mann)</option>
+                                    <option value="de-DE-TanjaNeural">Tanja (Frau)</option>
+                                </optgroup>
+                                <optgroup label="Spanish">
+                                    <option value="es-ES-ElviraNeural">Elvira (Mujer)</option>
+                                    <option value="es-ES-AlvaroNeural">Alvaro (Hombre)</option>
+                                    <option value="es-ES-AbrilNeural">Abril (Mujer)</option>
+                                    <option value="es-ES-ArnauNeural">Arnau (Hombre)</option>
+                                    <option value="es-ES-DarioNeural">Dario (Hombre)</option>
+                                    <option value="es-ES-EliasNeural">Elias (Hombre)</option>
+                                    <option value="es-ES-EstrellaNeural">Estrella (Mujer)</option>
+                                    <option value="es-ES-IreneNeural">Irene (Mujer)</option>
+                                    <option value="es-ES-LaiaNeural">Laia (Mujer)</option>
+                                    <option value="es-ES-LiaNeural">Lia (Mujer)</option>
+                                    <option value="es-ES-NilNeural">Nil (Hombre)</option>
+                                    <option value="es-ES-SaulNeural">Saul (Hombre)</option>
+                                    <option value="es-ES-TeoNeural">Teo (Hombre)</option>
+                                    <option value="es-ES-TrianaNeural">Triana (Mujer)</option>
+                                    <option value="es-ES-VeraNeural">Vera (Mujer)</option>
+                                    <option value="es-MX-DaliaNeural">Dalia (Mujer, MX)</option>
+                                    <option value="es-MX-JorgeNeural">Jorge (Hombre, MX)</option>
+                                </optgroup>
+                                <optgroup label="Russian">
+                                    <option value="ru-RU-SvetlanaNeural">Svetlana Светлана (Женский)</option>
+                                    <option value="ru-RU-DmitryNeural">Dmitry Дмитрий (Мужской)</option>
+                                    <option value="ru-RU-DariyaNeural">Dariya Дарья (Женский)</option>
+                                </optgroup>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label" for="speed">语速调节</label>
-                            <select class="form-select" id="speed">
-                                <option value="0.5">🐌 很慢</option>
-                                <option value="0.75">🚶 慢速</option>
-                                <option value="1.0" selected>⚡ 正常</option>
-                                <option value="1.25">🏃 快速</option>
-                                <option value="1.5">🚀 很快</option>
-                                <option value="2.0">💨 极速</option>
-                            </select>
+                            <label class="form-label" for="speed">
+                                <span>语速调节</span>
+                                <span class="control-value" id="speedValue">1.00x</span>
+                            </label>
+                            <div class="range-control">
+                                <div class="range-presets">
+                                    <button type="button" class="preset-btn" data-target="speed" data-value="0.5" title="很慢">🐌</button>
+                                    <button type="button" class="preset-btn" data-target="speed" data-value="0.75" title="慢速">🚶</button>
+                                    <button type="button" class="preset-btn active" data-target="speed" data-value="1.0" title="正常">⚡</button>
+                                    <button type="button" class="preset-btn" data-target="speed" data-value="1.5" title="快速">🚀</button>
+                                    <button type="button" class="preset-btn" data-target="speed" data-value="2.0" title="很快">💨</button>
+                                </div>
+                                <input type="range" class="form-range" id="speed"
+                                       min="0.25" max="3.0" step="0.05" value="1.0">
+                                <div class="range-labels">
+                                    <span>0.25x</span>
+                                    <span>1.0x</span>
+                                    <span>3.0x</span>
+                                </div>
+                            </div>
                         </div>
-                        
+
                         <div class="form-group">
-                            <label class="form-label" for="pitch">音调高低</label>
-                            <select class="form-select" id="pitch">
-                                <option value="-50">📉 很低沉</option>
-                                <option value="-25">📊 低沉</option>
-                                <option value="0" selected>🎵 标准</option>
-                                <option value="25">📈 高亢</option>
-                                <option value="50">🎶 很高亢</option>
-                            </select>
+                            <label class="form-label" for="pitch">
+                                <span>音调高低</span>
+                                <span class="control-value" id="pitchValue">0Hz</span>
+                            </label>
+                            <div class="range-control">
+                                <div class="range-presets">
+                                    <button type="button" class="preset-btn" data-target="pitch" data-value="-50" title="很低沉">📉</button>
+                                    <button type="button" class="preset-btn" data-target="pitch" data-value="-25" title="低沉">📊</button>
+                                    <button type="button" class="preset-btn active" data-target="pitch" data-value="0" title="标准">🎵</button>
+                                    <button type="button" class="preset-btn" data-target="pitch" data-value="25" title="高亢">📈</button>
+                                    <button type="button" class="preset-btn" data-target="pitch" data-value="50" title="很高亢">🎶</button>
+                                </div>
+                                <input type="range" class="form-range" id="pitch"
+                                       min="-50" max="50" step="1" value="0">
+                                <div class="range-labels">
+                                    <span>-50Hz</span>
+                                    <span>0Hz</span>
+                                    <span>+50Hz</span>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -1528,7 +1726,7 @@ const HTML_PAGE = `
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化国际化
             initializeI18n();
-            
+
             // 初始化其他功能
             initializeInputMethodTabs();
             initializeFileUpload();
@@ -1536,6 +1734,7 @@ const HTML_PAGE = `
             initializeAudioUpload();
             initializeTokenConfig();
             initializeLanguageSwitcher();
+            initializeRangeControls();
         });
 
         // 初始化输入方式切换
@@ -2095,6 +2294,67 @@ const HTML_PAGE = `
                     languageDropdown.classList.remove('show');
                 });
             });
+        }
+
+        // 初始化滑块控制
+        function initializeRangeControls() {
+            const speedInput = document.getElementById('speed');
+            const pitchInput = document.getElementById('pitch');
+            const speedValue = document.getElementById('speedValue');
+            const pitchValue = document.getElementById('pitchValue');
+
+            // 更新显示值
+            function updateSpeedDisplay() {
+                speedValue.textContent = parseFloat(speedInput.value).toFixed(2) + 'x';
+            }
+
+            function updatePitchDisplay() {
+                const val = parseInt(pitchInput.value);
+                pitchValue.textContent = (val > 0 ? '+' : '') + val + 'Hz';
+            }
+
+            // 监听滑块变化
+            speedInput.addEventListener('input', function() {
+                updateSpeedDisplay();
+                updatePresetButtons('speed', speedInput.value);
+            });
+
+            pitchInput.addEventListener('input', function() {
+                updatePitchDisplay();
+                updatePresetButtons('pitch', pitchInput.value);
+            });
+
+            // 预设按钮点击
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    const value = this.getAttribute('data-value');
+
+                    if (target === 'speed') {
+                        speedInput.value = value;
+                        updateSpeedDisplay();
+                    } else if (target === 'pitch') {
+                        pitchInput.value = value;
+                        updatePitchDisplay();
+                    }
+
+                    updatePresetButtons(target, value);
+                });
+            });
+
+            // 更新预设按钮状态
+            function updatePresetButtons(target, value) {
+                document.querySelectorAll('.preset-btn[data-target="' + target + '"]').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.getAttribute('data-value') === String(value)) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            // 初始化显示
+            updateSpeedDisplay();
+            updatePitchDisplay();
         }
     </script>
 </body>
