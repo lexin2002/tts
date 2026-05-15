@@ -320,94 +320,8 @@ const HTML_PAGE = `
             font-weight: 500;
         }
         
-        .wechat-promotion {
-            margin-top: 40px;
-            background: var(--surface-color);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
         
-        .promotion-header {
-            background: #f1f5f9;
-            padding: 20px 30px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .promotion-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-        
-        .promotion-subtitle {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-        
-        .promotion-content {
-            padding: 30px;
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 24px;
-            align-items: center;
-        }
-        
-        .qr-code {
-            width: 120px;
-            height: 120px;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .qr-code img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .promotion-info h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-        }
-        
-        .promotion-info p {
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
-        
-        .benefits-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .benefits-list li {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-bottom: 8px;
-        }
-        
-        .benefits-list li:before {
-            content: "✓";
-            color: var(--success-color);
-            font-weight: bold;
-            font-size: 1rem;
-        }
-        
-        @keyframes spin {
+@keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
@@ -420,7 +334,65 @@ const HTML_PAGE = `
         .fade-in {
             animation: fadeIn 0.3s ease-out;
         }
-        
+
+        .playback-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 10px;
+        }
+        .playback-bar .sentence-indicator {
+            flex: 1;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .playback-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .playback-btn.play {
+            background: var(--primary-color);
+            color: white;
+        }
+        .playback-btn.play:hover {
+            background: var(--primary-hover);
+            transform: scale(1.05);
+        }
+        .playback-btn.stop {
+            background: var(--error-color);
+            color: white;
+        }
+        .playback-btn.stop:hover {
+            background: #b91c1c;
+            transform: scale(1.05);
+        }
+        .playback-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .sentence-highlight {
+            background: #fef3c7;
+            border-radius: 2px;
+            padding: 0;
+        }
+
         /* 输入方式选择优化样式 */
         .input-method-tabs {
             display: flex;
@@ -1085,6 +1057,11 @@ const HTML_PAGE = `
                     <div class="form-group" id="textInputArea">
                         <label class="form-label" for="text">输入文本</label>
                         <textarea class="form-textarea" id="text" placeholder="请输入要转换为语音的文本内容，支持中文、英文、数字等..." required></textarea>
+                        <div class="playback-bar" id="playbackBar" style="display:none">
+                            <button type="button" class="playback-btn stop" id="stopPlaybackBtn">⏹</button>
+                            <span class="sentence-indicator" id="sentenceIndicator">就绪</span>
+                        </div>
+                        <audio id="sentencePlayer" style="display:none"></audio>
                     </div>
 
                     <!-- 文件上传区域 -->
@@ -1431,28 +1408,6 @@ const HTML_PAGE = `
             </div>
         </div>
         
-        <!-- 公众号推广组件 -->
-        <div class="wechat-promotion" id="wechatPromotion" style="display: none;">
-            <div class="promotion-header">
-                <h2 class="promotion-title">🎉 生成成功！喜欢这个工具吗？</h2>
-                <p class="promotion-subtitle">关注我们获取更多AI工具和技术分享</p>
-            </div>
-            <div class="promotion-content">
-                <div class="qr-code">
-                    <img src="https://img.996007.icu/file/img1/a48c4eac2f2a99909da5611c3885726.jpg" alt="微信公众号二维码" />
-                </div>
-                <div class="promotion-info">
-                    <h3>关注「一只会飞的旺旺」公众号</h3>
-                    <p>获取更多实用的AI工具、技术教程和独家资源分享</p>
-                    <ul class="benefits-list">
-                        <li>最新AI工具推荐和使用教程</li>
-                        <li>前沿技术解析和实战案例</li>
-                        <li>独家资源和工具源码分享</li>
-                        <li>技术问题答疑和交流社群</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -1735,6 +1690,7 @@ const HTML_PAGE = `
             initializeTokenConfig();
             initializeLanguageSwitcher();
             initializeRangeControls();
+            initializeSentencePlayback();
         });
 
         // 初始化输入方式切换
@@ -1952,13 +1908,6 @@ const HTML_PAGE = `
                 loading.style.display = 'none';
                 success.style.display = 'block';
                 
-                // 显示公众号推广组件
-                setTimeout(() => {
-                    const wechatPromotion = document.getElementById('wechatPromotion');
-                    wechatPromotion.style.display = 'block';
-                    wechatPromotion.classList.add('fade-in');
-                }, 1000);
-                
             } catch (err) {
                 loading.style.display = 'none';
                 error.style.display = 'block';
@@ -1997,12 +1946,11 @@ const HTML_PAGE = `
 
         // 切换功能模式
         function switchMode(mode) {
+            stopSentencePlayback();
             const ttsMode = document.getElementById('ttsMode');
             const transcriptionMode = document.getElementById('transcriptionMode');
             const mainContent = document.querySelector('.main-content');
             const transcriptionContainer = document.getElementById('transcriptionContainer');
-            const wechatPromotion = document.getElementById('wechatPromotion');
-
             currentMode = mode;
 
             if (mode === 'tts') {
@@ -2018,9 +1966,6 @@ const HTML_PAGE = `
                 mainContent.style.display = 'none';
                 transcriptionContainer.style.display = 'block';
             }
-
-            // 隐藏推广组件
-            wechatPromotion.style.display = 'none';
         }
 
         // 初始化音频上传功能
@@ -2189,13 +2134,6 @@ const HTML_PAGE = `
                 transcriptionLoading.style.display = 'none';
                 transcriptionSuccess.style.display = 'block';
                 
-                // 显示公众号推广组件
-                setTimeout(() => {
-                    const wechatPromotion = document.getElementById('wechatPromotion');
-                    wechatPromotion.style.display = 'block';
-                    wechatPromotion.classList.add('fade-in');
-                }, 1000);
-                
             } catch (err) {
                 transcriptionLoading.style.display = 'none';
                 transcriptionError.style.display = 'block';
@@ -2355,6 +2293,113 @@ const HTML_PAGE = `
             // 初始化显示
             updateSpeedDisplay();
             updatePitchDisplay();
+        }
+
+        let currentPlayQueue = [];
+        let playIndex = -1;
+        let isPlayingSentences = false;
+
+        function parseSentences(text) {
+            const raw = text.split(/(?<=[。！？.!?\n])/);
+            return raw.map(s => s.trim()).filter(s => s.length > 0);
+        }
+
+        function getSentenceAtCursor(text, cursorPos) {
+            const sentences = parseSentences(text);
+            let charCount = 0;
+            for (let i = 0; i < sentences.length; i++) {
+                charCount += sentences[i].length;
+                if (cursorPos <= charCount) return i;
+            }
+            return sentences.length - 1;
+        }
+
+        function initializeSentencePlayback() {
+            const textarea = document.getElementById('text');
+            const playbackBar = document.getElementById('playbackBar');
+            const indicator = document.getElementById('sentenceIndicator');
+            const stopBtn = document.getElementById('stopPlaybackBtn');
+            const player = document.getElementById('sentencePlayer');
+
+            stopBtn.addEventListener('click', stopSentencePlayback);
+
+            textarea.addEventListener('click', function() {
+                const voice = document.getElementById('voice').value;
+                const speed = document.getElementById('speed').value;
+                const pitch = document.getElementById('pitch').value;
+                const style = document.getElementById('style').value;
+                const text = this.value;
+                if (!text.trim()) return;
+
+                const idx = getSentenceAtCursor(text, this.selectionStart);
+                const sentences = parseSentences(text);
+                if (idx < 0 || idx >= sentences.length) return;
+
+                stopSentencePlayback();
+                currentPlayQueue = sentences;
+                playIndex = idx;
+                isPlayingSentences = true;
+                playbackBar.style.display = 'flex';
+                indicator.textContent = idx + 1 + '/' + sentences.length;
+                playNextSentence(voice, speed, pitch, style);
+            });
+        }
+
+        function stopSentencePlayback() {
+            isPlayingSentences = false;
+            const player = document.getElementById('sentencePlayer');
+            player.pause();
+            player.src = '';
+            document.getElementById('playbackBar').style.display = 'none';
+            document.getElementById('sentenceIndicator').textContent = '就绪';
+        }
+
+        async function playNextSentence(voice, speed, pitch, style) {
+            if (!isPlayingSentences || playIndex >= currentPlayQueue.length) {
+                stopSentencePlayback();
+                return;
+            }
+
+            const sentence = currentPlayQueue[playIndex];
+            const indicator = document.getElementById('sentenceIndicator');
+            indicator.textContent = (playIndex + 1) + '/' + currentPlayQueue.length + ' ' + sentence.slice(0, 30) + (sentence.length > 30 ? '...' : '');
+
+            try {
+                const response = await fetch('/v1/audio/speech', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        input: sentence,
+                        voice: voice,
+                        speed: parseFloat(speed),
+                        pitch: pitch,
+                        style: style
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error?.message || '播放失败');
+                }
+
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const player = document.getElementById('sentencePlayer');
+                player.src = url;
+
+                player.onended = function() {
+                    URL.revokeObjectURL(url);
+                    if (isPlayingSentences) {
+                        playIndex++;
+                        playNextSentence(voice, speed, pitch, style);
+                    }
+                };
+
+                player.play();
+            } catch (err) {
+                indicator.textContent = '播放失败: ' + err.message;
+                setTimeout(stopSentencePlayback, 1500);
+            }
         }
     </script>
 </body>
