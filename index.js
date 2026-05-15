@@ -2300,7 +2300,7 @@ const HTML_PAGE = `
         let isPlayingSentences = false;
 
         function parseSentences(text) {
-            const raw = text.split(/(?<=[。！？.!?\n])/);
+            const raw = text.split(/(?<=[。！？.!?\\n])/);
             return raw.map(s => s.trim()).filter(s => s.length > 0);
         }
 
