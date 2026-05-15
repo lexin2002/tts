@@ -335,17 +335,18 @@ const HTML_PAGE = `
             animation: fadeIn 0.3s ease-out;
         }
 
-        .playback-bar {
+        .read-aloud-bar {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 14px;
-            background: var(--background-color);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            background: var(--surface-color);
+            border: 2px solid var(--primary-color);
+            border-radius: var(--radius-lg);
             margin-top: 10px;
+            box-shadow: var(--shadow-sm);
         }
-        .playback-bar .sentence-indicator {
+        .read-aloud-bar .ra-status {
             flex: 1;
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -353,44 +354,54 @@ const HTML_PAGE = `
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .playback-btn {
-            width: 32px;
-            height: 32px;
+        .ra-btn {
+            padding: 6px 16px;
             border: none;
-            border-radius: 50%;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            font-weight: 600;
             transition: all 0.2s ease;
             flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        .playback-btn.play {
+        .ra-btn.play {
             background: var(--primary-color);
             color: white;
         }
-        .playback-btn.play:hover {
+        .ra-btn.play:hover {
             background: var(--primary-hover);
-            transform: scale(1.05);
+            transform: translateY(-1px);
         }
-        .playback-btn.stop {
+        .ra-btn.stop {
             background: var(--error-color);
             color: white;
         }
-        .playback-btn.stop:hover {
+        .ra-btn.stop:hover {
             background: #b91c1c;
-            transform: scale(1.05);
+            transform: translateY(-1px);
         }
-        .playback-btn:disabled {
+        .ra-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
-        .sentence-highlight {
-            background: #fef3c7;
-            border-radius: 2px;
-            padding: 0;
+        .ra-hint {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            padding: 4px 8px;
+            background: rgba(37, 99, 235, 0.04);
+            border-radius: var(--radius-sm);
+        }
+        .ra-hint kbd {
+            background: var(--border-color);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-family: inherit;
         }
 
         /* 输入方式选择优化样式 */
@@ -1057,11 +1068,7 @@ const HTML_PAGE = `
                     <div class="form-group" id="textInputArea">
                         <label class="form-label" for="text">输入文本</label>
                         <textarea class="form-textarea" id="text" placeholder="请输入要转换为语音的文本内容，支持中文、英文、数字等..." required></textarea>
-                        <div class="playback-bar" id="playbackBar" style="display:none">
-                            <button type="button" class="playback-btn stop" id="stopPlaybackBtn">⏹</button>
-                            <span class="sentence-indicator" id="sentenceIndicator">就绪</span>
-                        </div>
-                        <audio id="sentencePlayer" style="display:none"></audio>
+                        <div class="ra-hint">💡 双击句子开始逐句朗读，也可用下方控制栏</div>
                     </div>
 
                     <!-- 文件上传区域 -->
@@ -1090,6 +1097,14 @@ const HTML_PAGE = `
                             </div>
                         </div>
                     </div>
+
+                    <!-- 🔊 逐句朗读控制栏 -->
+                    <div class="read-aloud-bar" id="readAloudBar" style="display:none">
+                        <button type="button" class="ra-btn play" id="startReadAloudBtn">▶ 开始朗读</button>
+                        <button type="button" class="ra-btn stop" id="stopReadAloudBtn">⏹ 停止</button>
+                        <span class="ra-status" id="raStatus">就绪</span>
+                    </div>
+                    <audio id="sentencePlayer" style="display:none"></audio>
                 
                     <div class="controls-grid">
                         <div class="form-group">
@@ -1690,7 +1705,7 @@ const HTML_PAGE = `
             initializeTokenConfig();
             initializeLanguageSwitcher();
             initializeRangeControls();
-            initializeSentencePlayback();
+            initializeReadAloud();
         });
 
         // 初始化输入方式切换
@@ -1803,6 +1818,7 @@ const HTML_PAGE = `
         // 表单提交处理
         document.getElementById('ttsForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            stopAllPlayback();
             
             const voice = document.getElementById('voice').value;
             const speed = document.getElementById('speed').value;
@@ -1946,7 +1962,7 @@ const HTML_PAGE = `
 
         // 切换功能模式
         function switchMode(mode) {
-            stopSentencePlayback();
+            stopAllPlayback();
             const ttsMode = document.getElementById('ttsMode');
             const transcriptionMode = document.getElementById('transcriptionMode');
             const mainContent = document.querySelector('.main-content');
@@ -2295,111 +2311,290 @@ const HTML_PAGE = `
             updatePitchDisplay();
         }
 
-        let currentPlayQueue = [];
-        let playIndex = -1;
-        let isPlayingSentences = false;
+        // ──────────────────────────────────────────────
+        // 🔊 逐句朗读 — 全文状态变量
+        // ──────────────────────────────────────────────
+        let playChunks = [];        // chunkText() 生成的文本块数组
+        let playIndex = -1;         // 当前播放的块索引
+        let isPlaying = false;      // 是否正在播放中
+        let audioBuffer = [];       // 预取缓冲 { url: string }
 
-        function parseSentences(text) {
+        // ──────────────────────────────────────────────
+        // 智能文本分块：30-80 字符 + 标点呼吸节奏
+        // ──────────────────────────────────────────────
+        function chunkText(text) {
             const raw = text.split(/(?<=[。！？.!?\\n])/);
-            return raw.map(s => s.trim()).filter(s => s.length > 0);
+            const sentences = raw.map(s => s.trim()).filter(s => s.length > 0);
+            if (sentences.length <= 1) return sentences;
+
+            const MIN = 25, MAX = 80;
+            const result = [];
+            let buf = '';
+
+            for (const s of sentences) {
+                // 单句超长 → 从逗号处拆分
+                if (s.length > MAX) {
+                    if (buf) { result.push(buf.trim()); buf = ''; }
+                    const parts = s.split(/(?<=[，、；：,;:])/);
+                    for (const p of parts) {
+                        const t = p.trim();
+                        if (!t) continue;
+                        if (t.length > MAX) {
+                            // 仍超长 → 硬切
+                            for (let i = 0; i < t.length; i += MAX)
+                                result.push(t.slice(i, i + MAX));
+                        } else if (buf.length + t.length <= MAX) {
+                            buf += t;
+                        } else {
+                            if (buf) result.push(buf.trim());
+                            buf = t;
+                        }
+                    }
+                    continue;
+                }
+
+                // 短句合并
+                if (buf.length + s.length <= MAX) {
+                    buf += s;
+                } else {
+                    if (buf) result.push(buf.trim());
+                    buf = s;
+                }
+            }
+            if (buf.trim()) result.push(buf.trim());
+            return result.filter(c => c.length > 3);
         }
 
-        function getSentenceAtCursor(text, cursorPos) {
-            const sentences = parseSentences(text);
+        // ──────────────────────────────────────────────
+        // 根据光标位置定位所在 chunk 索引
+        // ──────────────────────────────────────────────
+        function getChunkIndexAtCursor(text, cursorPos) {
+            const chunks = chunkText(text);
             let charCount = 0;
-            for (let i = 0; i < sentences.length; i++) {
-                charCount += sentences[i].length;
+            for (let i = 0; i < chunks.length; i++) {
+                charCount += chunks[i].length;
                 if (cursorPos <= charCount) return i;
             }
-            return sentences.length - 1;
+            return chunks.length - 1;
         }
 
-        function initializeSentencePlayback() {
-            const textarea = document.getElementById('text');
-            const playbackBar = document.getElementById('playbackBar');
-            const indicator = document.getElementById('sentenceIndicator');
-            const stopBtn = document.getElementById('stopPlaybackBtn');
-            const player = document.getElementById('sentencePlayer');
-
-            stopBtn.addEventListener('click', stopSentencePlayback);
-
-            textarea.addEventListener('click', function() {
-                const voice = document.getElementById('voice').value;
-                const speed = document.getElementById('speed').value;
-                const pitch = document.getElementById('pitch').value;
-                const style = document.getElementById('style').value;
-                const text = this.value;
-                if (!text.trim()) return;
-
-                const idx = getSentenceAtCursor(text, this.selectionStart);
-                const sentences = parseSentences(text);
-                if (idx < 0 || idx >= sentences.length) return;
-
-                stopSentencePlayback();
-                currentPlayQueue = sentences;
-                playIndex = idx;
-                isPlayingSentences = true;
-                playbackBar.style.display = 'flex';
-                indicator.textContent = idx + 1 + '/' + sentences.length;
-                playNextSentence(voice, speed, pitch, style);
-            });
-        }
-
-        function stopSentencePlayback() {
-            isPlayingSentences = false;
-            const player = document.getElementById('sentencePlayer');
-            player.pause();
-            player.src = '';
-            document.getElementById('playbackBar').style.display = 'none';
-            document.getElementById('sentenceIndicator').textContent = '就绪';
-        }
-
-        async function playNextSentence(voice, speed, pitch, style) {
-            if (!isPlayingSentences || playIndex >= currentPlayQueue.length) {
-                stopSentencePlayback();
-                return;
+        // ──────────────────────────────────────────────
+        // 统一停止所有播放
+        // ──────────────────────────────────────────────
+        function stopAllPlayback() {
+            isPlaying = false;
+            // 停止逐句朗读 Audio
+            const sp = document.getElementById('sentencePlayer');
+            if (sp) { sp.pause(); sp.src = ''; }
+            // 停止完整音频播放器
+            const ap = document.getElementById('audioPlayer');
+            if (ap) ap.pause();
+            // 清空预取缓冲
+            for (const b of audioBuffer) {
+                if (b?.url) URL.revokeObjectURL(b.url);
             }
+            audioBuffer = [];
+            // 隐藏控制栏
+            const bar = document.getElementById('readAloudBar');
+            if (bar) bar.style.display = 'none';
+        }
 
-            const sentence = currentPlayQueue[playIndex];
-            const indicator = document.getElementById('sentenceIndicator');
-            indicator.textContent = (playIndex + 1) + '/' + currentPlayQueue.length + ' ' + sentence.slice(0, 30) + (sentence.length > 30 ? '...' : '');
+        // ──────────────────────────────────────────────
+        // 预取第 index 个块（Buffer = 1 滑动窗口）
+        // ──────────────────────────────────────────────
+        async function preloadChunk(index, voice, speed, pitch, style) {
+            if (index >= playChunks.length) return;
+            if (audioBuffer[index]?.url) return;
 
+            const text = playChunks[index];
             try {
                 const response = await fetch('/v1/audio/speech', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        input: sentence,
+                        input: text,
                         voice: voice,
                         speed: parseFloat(speed),
                         pitch: pitch,
                         style: style
                     })
                 });
-
                 if (!response.ok) {
                     const err = await response.json();
-                    throw new Error(err.error?.message || '播放失败');
+                    throw new Error(err.error?.message || '预取失败');
                 }
-
                 const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                const player = document.getElementById('sentencePlayer');
-                player.src = url;
-
-                player.onended = function() {
-                    URL.revokeObjectURL(url);
-                    if (isPlayingSentences) {
-                        playIndex++;
-                        playNextSentence(voice, speed, pitch, style);
-                    }
-                };
-
-                player.play();
-            } catch (err) {
-                indicator.textContent = '播放失败: ' + err.message;
-                setTimeout(stopSentencePlayback, 1500);
+                audioBuffer[index] = { url: URL.createObjectURL(blob) };
+            } catch (e) {
+                console.error('预取失败, chunk', index, e);
+                // 不抛出 — 播放时 onended 会兜底重新 fetch
             }
+        }
+
+        // ──────────────────────────────────────────────
+        // 播放第 index 个块（带 timeupdate 预取触发）
+        // ──────────────────────────────────────────────
+        async function playChunk(index, voice, speed, pitch, style) {
+            if (!isPlaying || index >= playChunks.length) {
+                finishPlayback();
+                return;
+            }
+
+            const player = document.getElementById('sentencePlayer');
+            const status = document.getElementById('raStatus');
+            const chunk = playChunks[index];
+
+            status.textContent = (index + 1) + '/' + playChunks.length + ' ' + chunk.slice(0, 35) + (chunk.length > 35 ? '...' : '');
+
+            // 如果没有预取，现场 fetch（兜底）
+            if (!audioBuffer[index]?.url) {
+                try {
+                    const response = await fetch('/v1/audio/speech', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            input: chunk,
+                            voice: voice,
+                            speed: parseFloat(speed),
+                            pitch: pitch,
+                            style: style
+                        })
+                    });
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.error?.message || '播放失败');
+                    }
+                    const blob = await response.blob();
+                    audioBuffer[index] = { url: URL.createObjectURL(blob) };
+                } catch (err) {
+                    status.textContent = '第' + (index + 1) + '块播放失败，跳过';
+                    setTimeout(() => {
+                        if (isPlaying) {
+                            playIndex = index + 1;
+                            playChunk(index + 1, voice, speed, pitch, style);
+                        }
+                    }, 800);
+                    return;
+                }
+            }
+
+            const entry = audioBuffer[index];
+            player.src = entry.url;
+
+            // 清理前一个缓冲
+            if (audioBuffer[index - 1]?.url) {
+                URL.revokeObjectURL(audioBuffer[index - 1].url);
+                audioBuffer[index - 1] = null;
+            }
+
+            // 监听播放进度 — 剩余 ≤ 1s 时预取下下个块
+            let prefetched = false;
+            player.ontimeupdate = function() {
+                if (prefetched) return;
+                const remaining = player.duration - player.currentTime;
+                if (remaining > 0 && remaining <= 1.0 && index + 2 < playChunks.length) {
+                    prefetched = true;
+                    preloadChunk(index + 2, voice, speed, pitch, style);
+                }
+            };
+
+            player.onended = function() {
+                player.ontimeupdate = null;
+                if (isPlaying) {
+                    playIndex = index + 1;
+                    playChunk(index + 1, voice, speed, pitch, style);
+                }
+            };
+
+            try {
+                await player.play();
+            } catch (err) {
+                status.textContent = '播放被中断';
+                stopAllPlayback();
+            }
+        }
+
+        // ──────────────────────────────────────────────
+        // 播放完成
+        // ──────────────────────────────────────────────
+        function finishPlayback() {
+            isPlaying = false;
+            const status = document.getElementById('raStatus');
+            status.textContent = '✅ 已全部播放完成';
+            setTimeout(() => {
+                document.getElementById('readAloudBar').style.display = 'none';
+            }, 3000);
+        }
+
+        // ──────────────────────────────────────────────
+        // 初始化逐句朗读
+        // ──────────────────────────────────────────────
+        function initializeReadAloud() {
+            const textarea = document.getElementById('text');
+            const bar = document.getElementById('readAloudBar');
+            const startBtn = document.getElementById('startReadAloudBtn');
+            const stopBtn = document.getElementById('stopReadAloudBtn');
+
+            // ─ 停止按钮
+            stopBtn.addEventListener('click', stopAllPlayback);
+
+            // ─ 从头开始朗读
+            startBtn.addEventListener('click', function() {
+                const text = textarea.value.trim();
+                if (!text) return;
+
+                stopAllPlayback();
+                playChunks = chunkText(text);
+                if (playChunks.length === 0) return;
+
+                playIndex = 0;
+                isPlaying = true;
+                bar.style.display = 'flex';
+                document.getElementById('raStatus').textContent = '准备中...';
+
+                // 预取第 0 块和第 1 块
+                const voice = document.getElementById('voice').value;
+                const speed = document.getElementById('speed').value;
+                const pitch = document.getElementById('pitch').value;
+                const style = document.getElementById('style').value;
+
+                Promise.all([
+                    preloadChunk(0, voice, speed, pitch, style),
+                    preloadChunk(1, voice, speed, pitch, style)
+                ]).then(() => {
+                    if (isPlaying) playChunk(0, voice, speed, pitch, style);
+                });
+            });
+
+            // ─ 双击句子从该块开始朗读
+            textarea.addEventListener('dblclick', function() {
+                const text = this.value.trim();
+                if (!text) return;
+
+                const idx = getChunkIndexAtCursor(text, this.selectionStart);
+                const chunks = chunkText(text);
+                if (idx < 0 || idx >= chunks.length) return;
+
+                stopAllPlayback();
+                playChunks = chunks;
+                playIndex = idx;
+                isPlaying = true;
+                bar.style.display = 'flex';
+                document.getElementById('raStatus').textContent = '准备中...';
+
+                const voice = document.getElementById('voice').value;
+                const speed = document.getElementById('speed').value;
+                const pitch = document.getElementById('pitch').value;
+                const style = document.getElementById('style').value;
+
+                // 预取双击处和后一块
+                Promise.all([
+                    preloadChunk(idx, voice, speed, pitch, style),
+                    preloadChunk(idx + 1, voice, speed, pitch, style)
+                ]).then(() => {
+                    if (isPlaying) playChunk(idx, voice, speed, pitch, style);
+                });
+            });
         }
     </script>
 </body>
