@@ -2595,6 +2595,35 @@ const HTML_PAGE = `
                     if (isPlaying) playChunk(idx, voice, speed, pitch, style);
                 });
             });
+
+            // ─ 参数热切换：修改后自动从当前位置用新参数重播
+            ['voice', 'speed', 'pitch', 'style'].forEach(id => {
+                document.getElementById(id).addEventListener('change', function() {
+                    if (!isPlaying || playIndex < 0) return;
+                    const idx = playIndex;
+                    const v = document.getElementById('voice').value;
+                    const s = document.getElementById('speed').value;
+                    const p = document.getElementById('pitch').value;
+                    const t = document.getElementById('style').value;
+
+                    isPlaying = false;
+                    const sp = document.getElementById('sentencePlayer');
+                    if (sp) { sp.pause(); sp.src = ''; }
+                    for (let i = idx; i < audioBuffer.length; i++) {
+                        if (audioBuffer[i]?.url) URL.revokeObjectURL(audioBuffer[i].url);
+                        audioBuffer[i] = null;
+                    }
+
+                    isPlaying = true;
+                    playIndex = idx;
+                    Promise.all([
+                        preloadChunk(idx, v, s, p, t),
+                        preloadChunk(idx + 1, v, s, p, t)
+                    ]).then(() => {
+                        if (isPlaying) playChunk(idx, v, s, p, t);
+                    });
+                });
+            });
         }
     </script>
 </body>
