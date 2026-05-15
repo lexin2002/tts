@@ -2318,6 +2318,7 @@ const HTML_PAGE = `
         let playIndex = -1;         // 当前播放的块索引
         let isPlaying = false;      // 是否正在播放中
         let audioBuffer = [];       // 预取缓冲 { url: string }
+        let fetchControllers = [];   // 追踪进行中的 fetch（用于 AbortController）
 
         // ──────────────────────────────────────────────
         // 智能文本分块：30-80 字符 + 标点呼吸节奏
@@ -2362,7 +2363,7 @@ const HTML_PAGE = `
                 }
             }
             if (buf.trim()) result.push(buf.trim());
-            return result.filter(c => c.length > 3);
+            return result.filter(c => c.trim().length > 0);
         }
 
         // ──────────────────────────────────────────────
@@ -2370,12 +2371,14 @@ const HTML_PAGE = `
         // ──────────────────────────────────────────────
         function getChunkIndexAtCursor(text, cursorPos) {
             const chunks = chunkText(text);
-            let charCount = 0;
+            const fingerprint = text.slice(cursorPos, cursorPos + 50).replace(/\s+/g, '');
+            if (!fingerprint) return chunks.length - 1;
             for (let i = 0; i < chunks.length; i++) {
-                charCount += chunks[i].length;
-                if (cursorPos <= charCount) return i;
+                const clean = chunks[i].replace(/\s+/g, '');
+                if (clean.includes(fingerprint.slice(0, 10)) || fingerprint.includes(clean.slice(0, 10)))
+                    return i;
             }
-            return chunks.length - 1;
+            return 0;
         }
 
         // ──────────────────────────────────────────────
@@ -2383,6 +2386,9 @@ const HTML_PAGE = `
         // ──────────────────────────────────────────────
         function stopAllPlayback() {
             isPlaying = false;
+            // 阻断所有进行中的 fetch
+            fetchControllers.forEach(c => c.abort());
+            fetchControllers = [];
             // 停止逐句朗读 Audio
             const sp = document.getElementById('sentencePlayer');
             if (sp) { sp.pause(); sp.src = ''; }
@@ -2402,15 +2408,14 @@ const HTML_PAGE = `
         // ──────────────────────────────────────────────
         // 预取第 index 个块（Buffer = 1 滑动窗口）
         // ──────────────────────────────────────────────
-        async function preloadChunk(index, voice, speed, pitch, style) {
-            if (index >= playChunks.length) return;
-            if (audioBuffer[index]?.url) return;
-
-            const text = playChunks[index];
+        async function fetchAudio(text, voice, speed, pitch, style) {
+            const controller = new AbortController();
+            fetchControllers.push(controller);
             try {
                 const response = await fetch('/v1/audio/speech', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal,
                     body: JSON.stringify({
                         input: text,
                         voice: voice,
@@ -2421,13 +2426,25 @@ const HTML_PAGE = `
                 });
                 if (!response.ok) {
                     const err = await response.json();
-                    throw new Error(err.error?.message || '预取失败');
+                    throw new Error(err.error?.message || '请求失败');
                 }
                 const blob = await response.blob();
-                audioBuffer[index] = { url: URL.createObjectURL(blob) };
+                return URL.createObjectURL(blob);
+            } finally {
+                fetchControllers = fetchControllers.filter(c => c !== controller);
+            }
+        }
+
+        async function preloadChunk(index, voice, speed, pitch, style) {
+            if (index >= playChunks.length) return;
+            if (audioBuffer[index]?.url) return;
+
+            try {
+                const url = await fetchAudio(playChunks[index], voice, speed, pitch, style);
+                audioBuffer[index] = { url };
             } catch (e) {
+                if (e.name === 'AbortError') return;
                 console.error('预取失败, chunk', index, e);
-                // 不抛出 — 播放时 onended 会兜底重新 fetch
             }
         }
 
@@ -2449,24 +2466,10 @@ const HTML_PAGE = `
             // 如果没有预取，现场 fetch（兜底）
             if (!audioBuffer[index]?.url) {
                 try {
-                    const response = await fetch('/v1/audio/speech', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            input: chunk,
-                            voice: voice,
-                            speed: parseFloat(speed),
-                            pitch: pitch,
-                            style: style
-                        })
-                    });
-                    if (!response.ok) {
-                        const err = await response.json();
-                        throw new Error(err.error?.message || '播放失败');
-                    }
-                    const blob = await response.blob();
-                    audioBuffer[index] = { url: URL.createObjectURL(blob) };
+                    const url = await fetchAudio(chunk, voice, speed, pitch, style);
+                    audioBuffer[index] = { url };
                 } catch (err) {
+                    if (err.name === 'AbortError') return;
                     status.textContent = '第' + (index + 1) + '块播放失败，跳过';
                     setTimeout(() => {
                         if (isPlaying) {
@@ -2487,12 +2490,12 @@ const HTML_PAGE = `
                 audioBuffer[index - 1] = null;
             }
 
-            // 监听播放进度 — 剩余 ≤ 1s 时预取下下个块
+            // 监听播放进度 — 剩余 ≤ 1s 或音频很短时立即预取
             let prefetched = false;
             player.ontimeupdate = function() {
                 if (prefetched) return;
                 const remaining = player.duration - player.currentTime;
-                if (remaining > 0 && remaining <= 1.0 && index + 2 < playChunks.length) {
+                if ((remaining > 0 && remaining <= 1.0 || player.duration <= 1.5) && index + 2 < playChunks.length) {
                     prefetched = true;
                     preloadChunk(index + 2, voice, speed, pitch, style);
                 }
