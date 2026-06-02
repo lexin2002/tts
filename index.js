@@ -1164,20 +1164,6 @@ const HTML_PAGE = `
                             </select>
                         </div>
                     </div>
-                                    <p class="file-drop-text">拖拽txt文件到此处，或点击选择文件</p>
-                                    <p class="file-drop-hint">支持txt格式，最大500KB</p>
-                                </div>
-                                <input type="file" id="fileInput" accept=".txt,text/plain" style="display: none;">
-                            </div>
-                            <div class="file-info" id="fileInfo" style="display: none;">
-                                <div class="file-details">
-                                    <span class="file-name" id="fileName"></span>
-                                    <span class="file-size" id="fileSize"></span>
-                                </div>
-                                <button type="button" class="file-remove-btn" id="fileRemoveBtn">✕</button>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- 🔊 逐句朗读控制栏 -->
                     <div class="read-aloud-bar" id="readAloudBar" style="display:none">
