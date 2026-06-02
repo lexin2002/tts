@@ -1774,23 +1774,19 @@ const HTML_PAGE = `
         }
 
         // 初始化页面
-        function safeInit(name, fn) {
-            try { fn(); } catch (e) {
-                console.error('[VoiceCraft] init ' + name + ' failed:', e);
-                if (typeof showToast === 'function') showToast('初始化 ' + name + ' 失败: ' + e.message, 'error');
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            safeInit('i18n', initializeI18n);
-            safeInit('InputMethodTabs', initializeInputMethodTabs);
-            safeInit('FileUpload', initializeFileUpload);
-            safeInit('ModeSwitcher', initializeModeSwitcher);
-            safeInit('AudioUpload', initializeAudioUpload);
-            safeInit('TokenConfig', initializeTokenConfig);
-            safeInit('LanguageSwitcher', initializeLanguageSwitcher);
-            safeInit('RangeControls', initializeRangeControls);
-            safeInit('ReadAloud', initializeReadAloud);
+            // 初始化国际化
+            initializeI18n();
+
+            // 初始化其他功能
+            initializeInputMethodTabs();
+            initializeFileUpload();
+            initializeModeSwitcher();
+            initializeAudioUpload();
+            initializeTokenConfig();
+            initializeLanguageSwitcher();
+            initializeRangeControls();
+            initializeReadAloud();
         });
 
         // 初始化输入方式切换
@@ -2809,7 +2805,6 @@ async function handleRequest(request) {
         return new Response(HTML_PAGE, {
             headers: {
                 "Content-Type": "text/html; charset=utf-8",
-                "Cache-Control": "no-cache, no-store, must-revalidate",
                 ...makeCORSHeaders()
             }
         });
