@@ -2753,6 +2753,7 @@ export const HTML_PAGE = `
             const controller = new AbortController();
             fetchControllers.push(controller);
             try {
+                const outputFormat = document.getElementById('outputFormat').value;
                 const response = await fetch('/v1/audio/speech', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2762,7 +2763,8 @@ export const HTML_PAGE = `
                         voice: voice,
                         speed: parseFloat(speed),
                         pitch: pitch,
-                        style: style
+                        style: style,
+                        outputFormat: outputFormat
                     })
                 });
                 if (!response.ok) {
