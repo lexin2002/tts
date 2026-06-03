@@ -451,7 +451,237 @@ export const HTML_PAGE = `
         .tab-btn:not(.active) .tab-icon {
             background: rgba(100, 116, 139, 0.1);
         }
-        
+
+        .form-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .pause-help-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: var(--surface-color);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pause-help-btn:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .pause-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .pause-modal.show {
+            display: flex;
+        }
+
+        .pause-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .pause-modal__panel {
+            position: relative;
+            background: var(--surface-color);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            max-width: 640px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 32px;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pause-modal__close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--background-color);
+            border-radius: 50%;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .pause-modal__close:hover {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .pause-modal__header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .pause-modal__icon {
+            font-size: 1.5rem;
+        }
+
+        .pause-modal__title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .pause-modal__intro {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .pause-modal__intro code {
+            background: var(--background-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .marker-help-section {
+            margin-bottom: 16px;
+        }
+
+        .marker-help-section__title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .pause-modal__examples {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pause-modal__examples li {
+            font-size: 0.825rem;
+            color: var(--text-secondary);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pause-modal__examples li:last-child {
+            border-bottom: none;
+        }
+
+        .pause-modal__examples code {
+            background: var(--background-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.775rem;
+            color: var(--primary-color);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        .pause-modal__example-box {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin: 16px 0;
+        }
+
+        .pause-modal__example-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .pause-modal__example-code {
+            font-size: 0.775rem;
+            color: var(--primary-color);
+            word-break: break-all;
+            line-height: 1.6;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        .pause-modal__limits {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin: 16px 0;
+            padding: 12px;
+            background: rgba(37, 99, 235, 0.04);
+            border-radius: var(--radius-sm);
+            line-height: 1.5;
+        }
+
+        .pause-modal__footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .pause-modal__dontshow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .pause-modal__dontshow input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-color);
+        }
+
+        .pause-modal__ok {
+            padding: 8px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pause-modal__ok:hover {
+            background: var(--primary-hover);
+        }
+
         .file-upload-container {
             width: 100%;
         }
@@ -1053,14 +1283,29 @@ export const HTML_PAGE = `
                                 </span>
                                 <span>上传文件</span>
                             </button>
+                            <button type="button" class="tab-btn" id="ssmlInputTab">
+                                <span class="tab-icon">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M14.6 16.6 19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4zm-5.2 0L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4z"/>
+                                    </svg>
+                                </span>
+                                <span>SSML</span>
+                            </button>
                         </div>
                     </div>
 
                     <!-- 手动输入区域 -->
                     <div class="form-group" id="textInputArea">
-                        <label class="form-label" for="text">输入文本</label>
-                        <textarea class="form-textarea" id="text" placeholder="请输入要转换为语音的文本内容，支持中文、英文、数字等..." required></textarea>
-                        <div class="ra-hint">💡 双击句子开始逐句朗读，也可用下方控制栏</div>
+                        <div class="form-label-row">
+                            <label class="form-label" for="text">输入文本</label>
+                            <button type="button" class="pause-help-btn" id="pauseHelpBtn" aria-label="语音指令帮助">
+                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-6h2v6zm0-8h-2V7h2v4z"/>
+                                </svg>
+                                <span>指令用法</span>
+                            </button>
+                        </div>
+                        <textarea class="form-textarea" id="text" placeholder="请输入要转换为语音的文本内容。可插入指令：[pause:500ms]、[emphasis:strong]重点[/emphasis]、[rate:slow]...[/rate] 等。点击上方"指令用法"查看完整速查卡。" required></textarea>
                     </div>
 
                     <!-- 文件上传区域 -->
@@ -1088,6 +1333,26 @@ export const HTML_PAGE = `
                                 <button type="button" class="file-remove-btn" id="fileRemoveBtn">✕</button>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- SSML 直通输入区域 -->
+                    <div class="form-group" id="ssmlInputArea" style="display: none;">
+                        <div class="form-label-row">
+                            <label class="form-label" for="ssmlText">SSML 标记</label>
+                            <button type="button" class="pause-help-btn" id="ssmlExampleBtn" title="插入 SSML 示例">
+                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                                </svg>
+                                <span>示例</span>
+                            </button>
+                        </div>
+                        <textarea class="form-textarea" id="ssmlText"
+                                  placeholder='<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-CN">
+  <voice name="zh-CN-XiaoxiaoNeural">大家好<break time="500ms"/>欢迎使用 SSML</voice>
+</speak>'
+                                  spellcheck="false"
+                                  style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; min-height: 180px;"></textarea>
+                        <p class="file-drop-hint" style="margin-top: 6px;">SSML 模式会把标记原样发送给 Microsoft TTS，下方的语音/语速/音调/风格控件不再生效。最大 8KB。</p>
                     </div>
 
                     <!-- 🔊 逐句朗读控制栏 -->
@@ -1295,6 +1560,18 @@ export const HTML_PAGE = `
                                 <option value="gentle">🌸 温和柔美</option>
                                 <option value="lyrical">🎼 抒情诗意</option>
                                 <option value="serious">🎯 严肃正式</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="outputFormat">输出格式</label>
+                            <select class="form-select" id="outputFormat">
+                                <option value="audio-24khz-48kbitrate-mono-mp3">MP3 (24kHz, 48kbps) - 默认</option>
+                                <option value="audio-48khz-96kbitrate-mono-mp3">MP3 (48kHz, 96kbps) - 高质量</option>
+                                <option value="audio-48khz-192kbitrate-mono-mp3">MP3 (48kHz, 192kbps) - 最高</option>
+                                <option value="audio-24khz-160kbitrate-mono-opus">Opus (24kHz, 160kbps)</option>
+                                <option value="audio-48khz-96kbitrate-mono-opus">Opus (48kHz, 96kbps)</option>
+                                <option value="riff-24khz-16bit-mono-pcm">WAV (24kHz, 16bit)</option>
                             </select>
                         </div>
                     </div>
@@ -1704,26 +1981,60 @@ export const HTML_PAGE = `
         function initializeInputMethodTabs() {
             const textInputTab = document.getElementById('textInputTab');
             const fileUploadTab = document.getElementById('fileUploadTab');
+            const ssmlInputTab = document.getElementById('ssmlInputTab');
             const textInputArea = document.getElementById('textInputArea');
             const fileUploadArea = document.getElementById('fileUploadArea');
+            const ssmlInputArea = document.getElementById('ssmlInputArea');
+            const textArea = document.getElementById('text');
 
-            textInputTab.addEventListener('click', function() {
-                currentInputMethod = 'text';
-                textInputTab.classList.add('active');
-                fileUploadTab.classList.remove('active');
-                textInputArea.style.display = 'block';
-                fileUploadArea.style.display = 'none';
-                document.getElementById('text').required = true;
-            });
+            function setActive(method) {
+                currentInputMethod = method;
+                [textInputTab, fileUploadTab, ssmlInputTab].forEach(function(b) {
+                    if (b) b.classList.remove('active');
+                });
+                [textInputArea, fileUploadArea, ssmlInputArea].forEach(function(a) {
+                    if (a) a.style.display = 'none';
+                });
+                if (method === 'text') {
+                    textInputTab.classList.add('active');
+                    textInputArea.style.display = 'block';
+                    if (textArea) textArea.required = true;
+                } else if (method === 'file') {
+                    fileUploadTab.classList.add('active');
+                    fileUploadArea.style.display = 'block';
+                    if (textArea) textArea.required = false;
+                } else if (method === 'ssml') {
+                    ssmlInputTab.classList.add('active');
+                    ssmlInputArea.style.display = 'block';
+                    if (textArea) textArea.required = false;
+                }
+            }
 
-            fileUploadTab.addEventListener('click', function() {
-                currentInputMethod = 'file';
-                fileUploadTab.classList.add('active');
-                textInputTab.classList.remove('active');
-                textInputArea.style.display = 'none';
-                fileUploadArea.style.display = 'block';
-                document.getElementById('text').required = false;
-            });
+            textInputTab.addEventListener('click', function() { setActive('text'); });
+            fileUploadTab.addEventListener('click', function() { setActive('file'); });
+            if (ssmlInputTab) ssmlInputTab.addEventListener('click', function() { setActive('ssml'); });
+
+            // SSML 示例按钮
+            const ssmlExampleBtn = document.getElementById('ssmlExampleBtn');
+            if (ssmlExampleBtn) {
+                ssmlExampleBtn.addEventListener('click', function() {
+                    const ssmlText = document.getElementById('ssmlText');
+                    if (!ssmlText) return;
+                    ssmlText.value = [
+                        '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="zh-CN">',
+                        '  <voice name="zh-CN-XiaoxiaoNeural">',
+                        '    <mstts:express-as style="cheerful" styledegree="2">',
+                        '      大家好！<break time="500ms"/>这是一段 <emphasis level="strong">SSML 示例</emphasis>。',
+                        '    </mstts:express-as>',
+                        '    <break time="300ms"/>',
+                        '    <prosody rate="slow" pitch="+10%">现在我用慢速、稍高的音调说话。</prosody>',
+                        '    电话号码：<say-as interpret-as="telephone">13800138000</say-as>。',
+                        '  </voice>',
+                        '</speak>'
+                    ].join('\\n');
+                    ssmlText.focus();
+                });
+            }
         }
 
         // 初始化文件上传功能
@@ -1816,6 +2127,7 @@ export const HTML_PAGE = `
             const speed = document.getElementById('speed').value;
             const pitch = document.getElementById('pitch').value;
             const style = document.getElementById('style').value;
+            const outputFormat = document.getElementById('outputFormat').value;
             
             const generateBtn = document.getElementById('generateBtn');
             const resultContainer = document.getElementById('result');
@@ -1833,6 +2145,16 @@ export const HTML_PAGE = `
             } else if (currentInputMethod === 'file') {
                 if (!selectedFile) {
                     alert('请选择要上传的txt文件');
+                    return;
+                }
+            } else if (currentInputMethod === 'ssml') {
+                const ssml = document.getElementById('ssmlText').value;
+                if (!ssml.trim()) {
+                    alert('请输入 SSML 标记');
+                    return;
+                }
+                if (ssml.length > 8192) {
+                    alert('SSML 内容超过 8KB 限制');
                     return;
                 }
             }
@@ -1877,7 +2199,26 @@ export const HTML_PAGE = `
                             voice: voice,
                             speed: parseFloat(speed),
                             pitch: pitch,
-                            style: style
+                            style: style,
+                            outputFormat: outputFormat
+                        })
+                    });
+                } else if (currentInputMethod === 'ssml') {
+                    // SSML 直通模式
+                    const ssml = document.getElementById('ssmlText').value;
+                    textLength = ssml.length;
+                    loadingText.textContent = '正在生成语音，请稍候...';
+                    progressInfo.textContent = 'SSML 长度: ' + textLength + ' 字符';
+
+                    response = await fetch('/v1/audio/speech', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            format: 'ssml',
+                            ssml: ssml,
+                            outputFormat: outputFormat
                         })
                     });
                 } else {
@@ -1891,6 +2232,7 @@ export const HTML_PAGE = `
                     formData.append('speed', speed);
                     formData.append('pitch', pitch);
                     formData.append('style', style);
+                    formData.append('outputFormat', outputFormat);
                     
                     response = await fetch('/v1/audio/speech', {
                         method: 'POST',
@@ -1912,6 +2254,13 @@ export const HTML_PAGE = `
                 
                 audioPlayer.src = audioUrl;
                 downloadBtn.href = audioUrl;
+                
+                // 根据输出格式设置下载文件名
+                const format = document.getElementById('outputFormat').value;
+                let ext = 'mp3';
+                if (format.includes('opus')) ext = 'opus';
+                else if (format.includes('riff') || format.includes('pcm')) ext = 'wav';
+                downloadBtn.download = 'speech.' + ext;
                 
                 loading.style.display = 'none';
                 success.style.display = 'block';
@@ -2620,7 +2969,159 @@ export const HTML_PAGE = `
                 });
             });
         }
+
+        // ========== 指令帮助弹窗 ==========
+        const PAUSE_TIP_STORAGE_KEY = 'voicecraft-pause-tip-seen';
+
+        function openPauseModal() {
+            const modal = document.getElementById('pauseModal');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            void modal.offsetWidth;
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            const closeBtn = document.getElementById('pauseModalClose');
+            if (closeBtn) {
+                try { closeBtn.focus({ preventScroll: true }); } catch (_) { closeBtn.focus(); }
+            }
+        }
+
+        function closePauseModal() {
+            const modal = document.getElementById('pauseModal');
+            if (!modal) return;
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function initializePauseHelp() {
+            const helpBtn = document.getElementById('pauseHelpBtn');
+            const modal = document.getElementById('pauseModal');
+            const closeBtn = document.getElementById('pauseModalClose');
+            const okBtn = document.getElementById('pauseModalOk');
+            const backdrop = document.getElementById('pauseModalBackdrop');
+            const dontShow = document.getElementById('pauseModalDontShow');
+
+            if (!modal || !helpBtn) return;
+
+            helpBtn.addEventListener('click', openPauseModal);
+
+            if (closeBtn) closeBtn.addEventListener('click', closePauseModal);
+            if (backdrop) backdrop.addEventListener('click', closePauseModal);
+
+            if (okBtn) {
+                okBtn.addEventListener('click', function() {
+                    try {
+                        if (dontShow && dontShow.checked) {
+                            localStorage.setItem(PAUSE_TIP_STORAGE_KEY, '1');
+                        } else {
+                            localStorage.setItem(PAUSE_TIP_STORAGE_KEY, '1');
+                        }
+                    } catch (_) {}
+                    closePauseModal();
+                });
+            }
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('show')) {
+                    closePauseModal();
+                }
+            });
+
+            let seen = false;
+            try { seen = localStorage.getItem(PAUSE_TIP_STORAGE_KEY) === '1'; } catch (_) {}
+            if (!seen) {
+                setTimeout(function() {
+                    if (typeof currentMode === 'undefined' || currentMode === 'tts') {
+                        openPauseModal();
+                    }
+                }, 600);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initializePauseHelp);
     </script>
+
+    <!-- 语音指令帮助弹窗 -->
+    <div class="pause-modal" id="pauseModal" role="dialog" aria-modal="true" aria-labelledby="pauseModalTitle" style="display: none;">
+        <div class="pause-modal__backdrop" id="pauseModalBackdrop"></div>
+        <div class="pause-modal__panel">
+            <button type="button" class="pause-modal__close" id="pauseModalClose" aria-label="Close">×</button>
+
+            <div class="pause-modal__header">
+                <span class="pause-modal__icon">🎙️</span>
+                <h2 class="pause-modal__title" id="pauseModalTitle">在文本中插入语音指令</h2>
+            </div>
+
+            <p class="pause-modal__intro">在文本中插入下面这些标记，可以精确控制停顿、重音、语速、音调、情感、朗读方式等。语法整体风格：<code>[名字:值]内容[/名字]</code>，pause 是自闭合的。</p>
+
+            <div class="marker-help-section">
+                <h3 class="marker-help-section__title">⏸ 停顿（自闭合）</h3>
+                <ul class="pause-modal__examples">
+                    <li><code>[pause:500ms]</code> — 精确毫秒（最大 5000ms）</li>
+                    <li><code>[pause:1.5s]</code> — 秒，支持小数</li>
+                    <li><code>[pause:weak]</code> / <code>[pause:medium]</code> / <code>[pause:strong]</code> — 按强度（x-weak ~ x-strong）</li>
+                    <li><code>[pause]</code> — 默认中等停顿</li>
+                </ul>
+            </div>
+
+            <div class="marker-help-section">
+                <h3 class="marker-help-section__title">💪 重音 emphasis</h3>
+                <ul class="pause-modal__examples">
+                    <li><code>[emphasis:strong]非常重要[/emphasis]</code> — level: reduced / moderate / strong / x-strong</li>
+                </ul>
+            </div>
+
+            <div class="marker-help-section">
+                <h3 class="marker-help-section__title">🎚 语速 / 音调 / 音量</h3>
+                <ul class="pause-modal__examples">
+                    <li><code>[rate:slow]慢一些[/rate]</code> — x-slow / slow / medium / fast / x-fast 或 ±N% (如 +50%)</li>
+                    <li><code>[pitch:+10%]高一些[/pitch]</code> — high / low 或 ±NHz / ±N% / ±Nst（半音）</li>
+                    <li><code>[volume:loud]大声[/volume]</code> — silent / soft / loud / x-loud 或 ±NdB</li>
+                </ul>
+            </div>
+
+            <div class="marker-help-section">
+                <h3 class="marker-help-section__title">🎭 情感风格 style（仅部分中文 voice 支持）</h3>
+                <ul class="pause-modal__examples">
+                    <li><code>[style:cheerful]开心地说[/style]</code> — cheerful / sad / angry / calm / serious / chat / customerservice ...</li>
+                    <li><code>[style:cheerful:1.5]很开心[/style]</code> — 可选强度 0.01 ~ 2.0</li>
+                </ul>
+            </div>
+
+            <div class="marker-help-section">
+                <h3 class="marker-help-section__title">🔢 朗读方式 say-as</h3>
+                <ul class="pause-modal__examples">
+                    <li><code>[say-as:digits]12345[/say-as]</code> — 逐字读数字</li>
+                    <li><code>[say-as:telephone]13800138000[/say-as]</code> — 电话号码</li>
+                    <li><code>[say-as:date]2026-05-24[/say-as]</code> — 日期</li>
+                    <li><code>[say-as:characters]ABC[/say-as]</code> — 逐字母读</li>
+                </ul>
+            </div>
+
+            <div class="marker-help-section">
+                <h3 class="marker-help-section__title">🔁 别名替换 sub</h3>
+                <ul class="pause-modal__examples">
+                    <li><code>[sub:北京]bj[/sub]</code> — 把 "bj" 读作 "北京"</li>
+                </ul>
+            </div>
+
+            <div class="pause-modal__example-box">
+                <div class="pause-modal__example-label">综合示例：</div>
+                <code class="pause-modal__example-code">大家好[pause:500ms][emphasis:strong]欢迎使用[/emphasis][pause:300ms][rate:slow]今天我要慢慢介绍[/rate]电话[say-as:telephone]13800138000[/say-as]</code>
+            </div>
+
+            <p class="pause-modal__limits">值不合法或未闭合时，该标记会原样保留为文本（不会报错）。单次停顿最长 5 秒，整段总停顿 ≤ 30 秒，全部指令上限 50 个。需要更复杂的标签（phoneme / lang / audio / 自定义词典）请用 SSML 模式。</p>
+
+            <div class="pause-modal__footer">
+                <label class="pause-modal__dontshow">
+                    <input type="checkbox" id="pauseModalDontShow">
+                    <span>不再自动显示</span>
+                </label>
+                <button type="button" class="pause-modal__ok" id="pauseModalOk">知道了</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 `;

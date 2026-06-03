@@ -1,6 +1,6 @@
 import { HTML_PAGE } from './html.js';
 import { makeCORSHeaders, handleOptions, delay } from './lib/utils.js';
-import { getVoice } from './lib/tts.js';
+import { getVoice, getVoiceSsml, hasDirectives, convertDirectivesToSsml } from './lib/tts.js';
 import { handleAudioTranscription } from './lib/stt.js';
 
 export default {
@@ -57,26 +57,45 @@ async function handleRequest(request) {
             }
             
             const requestBody = await request.json();
+            
             const {
                 input,
                 voice = "zh-CN-XiaoxiaoNeural",
                 speed = '1.0',
                 volume = '0',
                 pitch = '0',
-                style = "general"
+                style = "general",
+                outputFormat = "audio-24khz-48kbitrate-mono-mp3",
+                format,
+                ssml
             } = requestBody;
+
+            // SSML 直通模式
+            if (format === 'ssml') {
+                return await getVoiceSsml(ssml, outputFormat);
+            }
 
             let rate = parseInt(String((parseFloat(speed) - 1.0) * 100));
             let numVolume = parseInt(String(parseFloat(volume) * 100));
             let numPitch = parseInt(pitch);
+            const rateStr = rate >= 0 ? `+${rate}%` : `${rate}%`;
+            const pitchStr = numPitch >= 0 ? `+${numPitch}Hz` : `${numPitch}Hz`;
+            const volumeStr = numVolume >= 0 ? `+${numVolume}%` : `${numVolume}%`;
+
+            // 如果文本包含指令标记，先转换为 SSML 再生成
+            if (hasDirectives(input)) {
+                const convertedSsml = convertDirectivesToSsml(input, voice, rateStr, pitchStr, volumeStr, style);
+                return await getVoiceSsml(convertedSsml, outputFormat);
+            }
+
             const response = await getVoice(
                 input,
                 voice,
-                rate >= 0 ? `+${rate}%` : `${rate}%`,
-                numPitch >= 0 ? `+${numPitch}Hz` : `${numPitch}Hz`,
-                numVolume >= 0 ? `+${numVolume}%` : `${numVolume}%`,
+                rateStr,
+                pitchStr,
+                volumeStr,
                 style,
-                "audio-24khz-48kbitrate-mono-mp3"
+                outputFormat
             );
 
             return response;
@@ -112,6 +131,7 @@ async function handleFileUpload(request) {
         const volume = formData.get('volume') || '0';
         const pitch = formData.get('pitch') || '0';
         const style = formData.get('style') || 'general';
+        const outputFormat = formData.get('outputFormat') || 'audio-24khz-48kbitrate-mono-mp3';
 
         if (!file) {
             return new Response(JSON.stringify({
@@ -203,15 +223,24 @@ async function handleFileUpload(request) {
         let rate = parseInt(String((parseFloat(speed) - 1.0) * 100));
         let numVolume = parseInt(String(parseFloat(volume) * 100));
         let numPitch = parseInt(pitch);
+        const rateStr = rate >= 0 ? `+${rate}%` : `${rate}%`;
+        const pitchStr = numPitch >= 0 ? `+${numPitch}Hz` : `${numPitch}Hz`;
+        const volumeStr = numVolume >= 0 ? `+${numVolume}%` : `${numVolume}%`;
+
+        // 如果文本包含指令标记，先转换为 SSML 再生成
+        if (hasDirectives(text)) {
+            const convertedSsml = convertDirectivesToSsml(text, voice, rateStr, pitchStr, volumeStr, style);
+            return await getVoiceSsml(convertedSsml, outputFormat);
+        }
 
         return await getVoice(
             text,
             voice,
-            rate >= 0 ? `+${rate}%` : `${rate}%`,
-            numPitch >= 0 ? `+${numPitch}Hz` : `${numPitch}Hz`,
-            numVolume >= 0 ? `+${numVolume}%` : `${numVolume}%`,
+            rateStr,
+            pitchStr,
+            volumeStr,
             style,
-            "audio-24khz-48kbitrate-mono-mp3"
+            outputFormat
         );
 
     } catch (error) {
