@@ -459,33 +459,6 @@ const HTML_PAGE = `
         .tab-btn:not(.active) .tab-icon {
             background: rgba(100, 116, 139, 0.1);
         }
-
-        .form-label-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .pause-help-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            background: var(--surface-color);
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .pause-help-btn:hover {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            background: rgba(37, 99, 235, 0.05);
-        }
         
         .file-upload-container {
             width: 100%;
@@ -1088,14 +1061,6 @@ const HTML_PAGE = `
                                 </span>
                                 <span>上传文件</span>
                             </button>
-                            <button type="button" class="tab-btn" id="ssmlInputTab">
-                                <span class="tab-icon">
-                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M14.6 16.6 19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4zm-5.2 0L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4z"/>
-                                    </svg>
-                                </span>
-                                <span>SSML</span>
-                            </button>
                         </div>
                     </div>
 
@@ -1118,52 +1083,6 @@ const HTML_PAGE = `
                                             <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2M18 20H6V4H13V9H18V20Z"/>
                                         </svg>
                                     </div>
-                                    <p class="file-drop-text">拖拽txt文件到此处，或点击选择文件</p>
-                                    <p class="file-drop-hint">支持txt格式，最大500KB</p>
-                                </div>
-                                <input type="file" id="fileInput" accept=".txt,text/plain" style="display: none;">
-                            </div>
-                            <div class="file-info" id="fileInfo" style="display: none;">
-                                <div class="file-details">
-                                    <span class="file-name" id="fileName"></span>
-                                    <span class="file-size" id="fileSize"></span>
-                                </div>
-                                <button type="button" class="file-remove-btn" id="fileRemoveBtn">✕</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SSML 直通输入区域 -->
-                    <div class="form-group" id="ssmlInputArea" style="display: none;">
-                        <div class="form-label-row">
-                            <label class="form-label" for="ssmlText">SSML 标记</label>
-                            <button type="button" class="pause-help-btn" id="ssmlExampleBtn" title="插入 SSML 示例">
-                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
-                                </svg>
-                                <span>示例</span>
-                            </button>
-                        </div>
-                        <textarea class="form-textarea" id="ssmlText"
-                                  placeholder='<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-CN">
-  <voice name="zh-CN-XiaoxiaoNeural">大家好<break time="500ms"/>欢迎使用 SSML</voice>
-</speak>'
-                                  spellcheck="false"
-                                  style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; min-height: 180px;"></textarea>
-                        <p class="file-drop-hint" style="margin-top: 6px;">SSML 模式会把标记原样发送给 Microsoft TTS，下方的语音/语速/音调/风格控件不再生效。最大 8KB。</p>
-                        <!-- 音频格式选择 -->
-                        <div class="form-group" style="margin-top: 12px;">
-                            <label class="form-label" for="ssmlOutputFormat">输出格式</label>
-                            <select class="form-select" id="ssmlOutputFormat">
-                                <option value="audio-24khz-48kbitrate-mono-mp3">MP3 (24kHz, 48kbps) - 默认</option>
-                                <option value="audio-48khz-96kbitrate-mono-mp3">MP3 (48kHz, 96kbps) - 高质量</option>
-                                <option value="audio-48khz-192kbitrate-mono-mp3">MP3 (48kHz, 192kbps) - 最高</option>
-                                <option value="audio-24khz-160kbitrate-mono-opus">Opus (24kHz, 160kbps)</option>
-                                <option value="audio-48khz-96kbitrate-mono-opus">Opus (48kHz, 96kbps)</option>
-                                <option value="riff-24khz-16bit-mono-pcm">WAV (24kHz, 16bit)</option>
-                            </select>
-                        </div>
-                    </div>
                                     <p class="file-drop-text">拖拽txt文件到此处，或点击选择文件</p>
                                     <p class="file-drop-hint">支持txt格式，最大500KB</p>
                                 </div>
@@ -1793,19 +1712,15 @@ const HTML_PAGE = `
         function initializeInputMethodTabs() {
             const textInputTab = document.getElementById('textInputTab');
             const fileUploadTab = document.getElementById('fileUploadTab');
-            const ssmlInputTab = document.getElementById('ssmlInputTab');
             const textInputArea = document.getElementById('textInputArea');
             const fileUploadArea = document.getElementById('fileUploadArea');
-            const ssmlInputArea = document.getElementById('ssmlInputArea');
 
             textInputTab.addEventListener('click', function() {
                 currentInputMethod = 'text';
                 textInputTab.classList.add('active');
                 fileUploadTab.classList.remove('active');
-                ssmlInputTab.classList.remove('active');
                 textInputArea.style.display = 'block';
                 fileUploadArea.style.display = 'none';
-                ssmlInputArea.style.display = 'none';
                 document.getElementById('text').required = true;
             });
 
@@ -1813,46 +1728,10 @@ const HTML_PAGE = `
                 currentInputMethod = 'file';
                 fileUploadTab.classList.add('active');
                 textInputTab.classList.remove('active');
-                ssmlInputTab.classList.remove('active');
                 textInputArea.style.display = 'none';
                 fileUploadArea.style.display = 'block';
-                ssmlInputArea.style.display = 'none';
                 document.getElementById('text').required = false;
             });
-
-            ssmlInputTab.addEventListener('click', function() {
-                currentInputMethod = 'ssml';
-                ssmlInputTab.classList.add('active');
-                textInputTab.classList.remove('active');
-                fileUploadTab.classList.remove('active');
-                textInputArea.style.display = 'none';
-                fileUploadArea.style.display = 'none';
-                ssmlInputArea.style.display = 'block';
-                document.getElementById('text').required = false;
-            });
-
-            // SSML 示例按钮
-            const ssmlExampleBtn = document.getElementById('ssmlExampleBtn');
-            if (ssmlExampleBtn) {
-                ssmlExampleBtn.addEventListener('click', function() {
-                    const ssmlText = document.getElementById('ssmlText');
-                    if (ssmlText) {
-                        ssmlText.value = [
-                            '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="zh-CN">',
-                            '  <voice name="zh-CN-XiaoxiaoNeural">',
-                            '    <mstts:express-as style="cheerful" styledegree="2">',
-                            '      大家好！<break time="500ms"/>这是一段 <emphasis level="strong">SSML 示例</emphasis>。',
-                            '    </mstts:express-as>',
-                            '    <break time="300ms"/>',
-                            '    <prosody rate="slow" pitch="+10%">现在我用慢速、稍高的音调说话。</prosody>',
-                            '    电话号码：<say-as interpret-as="telephone">13800138000</say-as>。',
-                            '  </voice>',
-                            '</speak>'
-                        ].join('\n');
-                        ssmlText.focus();
-                    }
-                });
-            }
         }
 
         // 初始化文件上传功能
@@ -1964,16 +1843,6 @@ const HTML_PAGE = `
                     alert('请选择要上传的txt文件');
                     return;
                 }
-            } else if (currentInputMethod === 'ssml') {
-                const ssml = document.getElementById('ssmlText').value;
-                if (!ssml.trim()) {
-                    alert('请输入 SSML 标记');
-                    return;
-                }
-                if (ssml.length > 8192) {
-                    alert('SSML 内容超过 8KB 限制');
-                    return;
-                }
             }
             
             // 重置状态
@@ -2017,25 +1886,6 @@ const HTML_PAGE = `
                             speed: parseFloat(speed),
                             pitch: pitch,
                             style: style
-                        })
-                    });
-                } else if (currentInputMethod === 'ssml') {
-                    // SSML 直通模式
-                    const ssml = document.getElementById('ssmlText').value;
-                    const outputFormat = document.getElementById('ssmlOutputFormat').value;
-                    textLength = ssml.length;
-                    loadingText.textContent = '正在生成语音，请稍候...';
-                    progressInfo.textContent = 'SSML 长度: ' + textLength + ' 字符';
-
-                    response = await fetch('/v1/audio/speech', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            format: 'ssml',
-                            ssml: ssml,
-                            outputFormat: outputFormat
                         })
                     });
                 } else {
@@ -2841,26 +2691,8 @@ async function handleRequest(request) {
                 return await handleFileUpload(request);
             }
             
-            // 处理JSON请求
+            // 处理JSON请求（原有功能）
             const requestBody = await request.json();
-            
-            // SSML 直通模式
-            if (requestBody.format === 'ssml') {
-                const ssml = requestBody.ssml;
-                const outputFormat = requestBody.outputFormat || 'audio-24khz-48kbitrate-mono-mp3';
-                
-                if (!ssml || !ssml.trim()) {
-                    throw new Error("SSML 内容为空");
-                }
-                
-                if (ssml.length > 8192) {
-                    throw new Error("SSML 内容超过 8KB 限制");
-                }
-                
-                return await getVoiceSsml(ssml, outputFormat);
-            }
-            
-            // 普通文本模式
             const {
                 input,
                 voice = "zh-CN-XiaoxiaoNeural",
@@ -3071,77 +2903,7 @@ async function getVoice(text, voiceName = "zh-CN-XiaoxiaoNeural", rate = '+0%', 
     }
 }
 
-// SSML 直通模式：直接发送 SSML 到 Microsoft TTS API
-async function getVoiceSsml(ssml, outputFormat = 'audio-24khz-48kbitrate-mono-mp3', maxRetries = 3) {
-    const retryDelay = 500;
-    
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        try {
-            const endpoint = await getEndpoint();
-            const url = `https://${endpoint.r}.tts.speech.microsoft.com/cognitiveservices/v1`;
-            
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Authorization": endpoint.t,
-                    "Content-Type": "application/ssml+xml",
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0",
-                    "X-Microsoft-OutputFormat": outputFormat
-                },
-                body: ssml
-            });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                
-                if (response.status === 429) {
-                    if (attempt < maxRetries) {
-                        console.log(`SSML 频率限制，第${attempt + 1}次重试，等待${retryDelay * (attempt + 1)}ms`);
-                        await delay(retryDelay * (attempt + 1));
-                        continue;
-                    }
-                    throw new Error(`请求频率过高，已重试${maxRetries}次仍失败`);
-                } else if (response.status >= 500) {
-                    if (attempt < maxRetries) {
-                        console.log(`SSML 服务器错误，第${attempt + 1}次重试，等待${retryDelay * (attempt + 1)}ms`);
-                        await delay(retryDelay * (attempt + 1));
-                        continue;
-                    }
-                    throw new Error(`Edge TTS服务器错误: ${response.status} ${errorText}`);
-                } else {
-                    throw new Error(`Edge TTS API错误: ${response.status} ${errorText}`);
-                }
-            }
-
-            const audioBlob = await response.blob();
-            return new Response(audioBlob, {
-                headers: {
-                    "Content-Type": "audio/mpeg",
-                    ...makeCORSHeaders()
-                }
-            });
-
-        } catch (error) {
-            if (attempt === maxRetries) {
-                console.error("SSML 语音合成失败:", error);
-                return new Response(JSON.stringify({
-                    error: {
-                        message: error.message || String(error),
-                        type: "api_error",
-                        param: "ssml",
-                        code: "edge_tts_error"
-                    }
-                }), {
-                    status: 500,
-                    headers: {
-                        "Content-Type": "application/json",
-                        ...makeCORSHeaders()
-                    }
-                });
-            }
-        }
-    }
-}
 
 //获取单个音频数据（增强错误处理和重试机制）
 async function getAudioChunk(text, voiceName, rate, pitch, volume, style, outputFormat = 'audio-24khz-48kbitrate-mono-mp3', maxRetries = 3) {
